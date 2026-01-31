@@ -1,0 +1,7 @@
+{
+  "name": "Nur - Prayer Tracker",
+  "description": "A beautiful, iOS-inspired prayer tracking application that uses your location to calculate precise prayer times and sends reminders to stay consistent with your daily prayers.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
