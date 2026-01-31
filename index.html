@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nur - Prayer Tracker</title>
     
+    <script>
+        // CRITICAL: Define process.env BEFORE any modules load to prevent blank page crashes
+        window.process = window.process || { env: {} };
+    </script>
+
     <!-- iOS Web App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -32,6 +37,8 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { animation: spin 1s linear infinite; }
         @keyframes slideDown {
             from { transform: translateY(-100%); }
             to { transform: translateY(0); }
@@ -52,13 +59,36 @@
 </script>
 </head>
 <body class="overflow-x-hidden">
-    <div id="root"></div>
+    <div id="root">
+        <!-- Temporary loading UI while React initializes -->
+        <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #F2F2F7;">
+            <div class="spinner" style="width: 40px; height: 40px; border: 3px solid #3b82f6; border-top-color: transparent; border-radius: 50%; margin-bottom: 16px;"></div>
+            <p style="color: #6b7280; font-family: sans-serif; font-size: 14px; font-weight: 500;">Loading Nur...</p>
+        </div>
+    </div>
+
+    <!-- Ensure index.tsx is imported relative to the current path -->
+    <script type="module" src="./index.tsx"></script>
+    
     <script>
+        // Robust Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed:', err));
+                // Use a standard relative path and catch errors to prevent app crashes
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('ServiceWorker registered:', reg.scope))
+                    .catch(err => {
+                        // In many preview environments, SW is blocked by security headers.
+                        // We log a warning instead of an error so it doesn't look like a crash.
+                        console.warn('ServiceWorker registration skipped (Expected in preview/dev):', err.message);
+                    });
             });
         }
+
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Runtime Error:', msg, 'at', url, ':', lineNo);
+            return false;
+        };
     </script>
 </body>
 </html>
