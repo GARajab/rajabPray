@@ -17,8 +17,8 @@
     <meta name="apple-mobile-web-app-title" content="Nur">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3663/3663361.png">
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA Manifest - Using root path to prevent subfolder issues -->
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#F2F2F7">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -67,20 +67,18 @@
         </div>
     </div>
 
-    <!-- Ensure index.tsx is imported relative to the current path -->
-    <script type="module" src="./index.tsx"></script>
+    <!-- Main Entry Point -->
+    <script type="module" src="/index.tsx"></script>
     
     <script>
         // Robust Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Use a standard relative path and catch errors to prevent app crashes
-                navigator.serviceWorker.register('sw.js')
+                // Register from root to ensure it controls the entire scope
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
                     .then(reg => console.log('ServiceWorker registered:', reg.scope))
                     .catch(err => {
-                        // In many preview environments, SW is blocked by security headers.
-                        // We log a warning instead of an error so it doesn't look like a crash.
-                        console.warn('ServiceWorker registration skipped (Expected in preview/dev):', err.message);
+                        console.warn('ServiceWorker registration skipped:', err.message);
                     });
             });
         }
